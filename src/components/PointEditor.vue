@@ -4,7 +4,7 @@
     <div class="time" v-if="absoluteDate === date">
       Keypoint:
     </div>
-    <div class="time" v-else-if="tempDateValue !== date">
+    <div class="time" v-else-if="tempDateValue !== Math.floor(date)">
       New keypoint:
     </div>
     <div class="time" v-else>
@@ -66,14 +66,12 @@ export default {
 
     setTime(d) {
       let t = moment(d);
-      console.log(d, t);
 
       this.$store.commit("setTimeAtActiveIndex", t.valueOf());
     },
   },
   watch: {
     date(to) {
-      console.log("watch", to);
       this.tempDate = moment(to).toISOString();
     },
 

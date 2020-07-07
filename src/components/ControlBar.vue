@@ -48,8 +48,6 @@ export default {
       var blob = new Blob([gpx], { type: "text/xml" });
 
       saveAs(blob, "output.gpx");
-
-      console.log(gpx);
     },
   },
 };
@@ -63,6 +61,7 @@ export default {
   background-color: #101024;
   color: white;
   height: 52px;
+  border-bottom: 1px solid #544e68;
 }
 
 .export-container {

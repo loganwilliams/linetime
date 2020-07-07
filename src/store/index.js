@@ -8,7 +8,9 @@ export default new Vuex.Store({
   state: {
     trace: false,
     activeIndex: -1,
+    hoverIndex: -1,
     filename: false,
+    mode: "opentopo",
   },
   mutations: {
     setTrace(state, trace) {
@@ -17,8 +19,14 @@ export default new Vuex.Store({
     setIndex(state, index) {
       state.activeIndex = index;
     },
+    setHoverIndex(state, index) {
+      state.hoverIndex = index;
+    },
     setFilename(state, file) {
       state.filename = file.name;
+    },
+    setMode(state, mode) {
+      state.mode = mode;
     },
     setTimeAtActiveIndex(state, time) {
       let coordinates = state.trace.geometry.coordinates;
@@ -35,6 +43,12 @@ export default new Vuex.Store({
     indexPoint(state) {
       if (state.activeIndex < 0) return null;
       let p = state.trace.geometry.coordinates[state.activeIndex];
+      return [p[1], p[0], ...p.slice(2)];
+    },
+
+    hoverPoint(state) {
+      if (state.hoverIndex < 0) return null;
+      let p = state.trace.geometry.coordinates[state.hoverIndex];
       return [p[1], p[0], ...p.slice(2)];
     },
 
