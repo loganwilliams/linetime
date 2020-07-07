@@ -10,7 +10,7 @@ export default new Vuex.Store({
     activeIndex: -1,
     hoverIndex: -1,
     filename: false,
-    mode: "opentopo",
+    mode: "default",
   },
   mutations: {
     setTrace(state, trace) {

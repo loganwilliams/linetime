@@ -1,17 +1,22 @@
 <template>
   <div class="selected-point">
     <div class="index">{{ "Selected point " + index }}</div>
-    <div class="time" v-if="absoluteDate === date">
+    <div class="time key" v-if="absoluteDate === date">
       Keypoint:
     </div>
-    <div class="time" v-else-if="tempDateValue !== Math.floor(date)">
+    <div class="time new" v-else-if="tempDateValue !== Math.floor(date)">
       New keypoint:
     </div>
-    <div class="time" v-else>
+    <div class="time interpolated" v-else>
       Interpolated:
     </div>
-    <datetime v-model="tempDate" type="datetime" />
-    <div class="set-time">
+    <datetime v-model="tempDate" type="datetime" :uses12-hour="true" />
+    <div
+      :class="{
+        'set-time': true,
+        new: tempDateValue !== Math.floor(date) && absoluteDate !== date,
+      }"
+    >
       <button @click="setTime(tempDate)">Set keypoint</button>
     </div>
   </div>
@@ -86,10 +91,36 @@ export default {
 .selected-point {
   display: flex;
   align-items: center;
+  border-left: 1px solid #544e68;
+  padding: 0.25em;
+  border-radius: 2px;
+  height: 100%;
 
   div {
     margin-left: 0.5em;
     margin-right: 0.5em;
+  }
+}
+
+.key,
+.new {
+  font-weight: bold;
+}
+
+.new {
+  color: #ffaa5e;
+}
+
+.interpolated {
+  font-style: italic;
+}
+
+.new button {
+  background-color: #8d697a;
+  font-weight: bold;
+
+  &:hover {
+    background-color: #d08159;
   }
 }
 </style>
@@ -103,5 +134,19 @@ export default {
   margin-left: auto;
   margin-right: 0px;
   padding: 0.5em;
+}
+
+.vdatetime-popup__header {
+  background-color: #032165;
+}
+
+.vdatetime-calendar__month__day--selected > span > span,
+.vdatetime-calendar__month__day--selected:hover > span > span {
+  background-color: #032165;
+}
+
+.vdatetime-popup__actions__button,
+.vdatetime-time-picker__item--selected {
+  color: #032165;
 }
 </style>

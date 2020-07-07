@@ -1,5 +1,6 @@
 <template>
   <div class="top">
+    <div class="title">GPX Time Tracer</div>
     <file-reader @load="$emit('setText', $event)"></file-reader>
     <div class="loaded" v-if="$store.state.filename">
       <div class="name" v-if="$store.state.filename">
@@ -10,8 +11,14 @@
         :point="$store.getters.indexPoint"
         :index="$store.state.activeIndex"
       />
+      <div v-else>
+        Click on the route line to view an interpolated time or set a time
+        keypoint
+      </div>
       <div class="export-container">
-        <button class="export" @click="exportGeojson">Export</button>
+        <button class="export" @click="exportGeojson">
+          Export GPX with timestamps
+        </button>
       </div>
     </div>
   </div>
@@ -84,5 +91,11 @@ export default {
   font-weight: bold;
   margin-left: 0.5em;
   margin-right: 0.5em;
+}
+
+.title {
+  font-weight: bold;
+  margin-right: 1em;
+  text-decoration: underline;
 }
 </style>

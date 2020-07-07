@@ -97,17 +97,14 @@ export default {
   },
   data() {
     return {
-      zoom: 11,
-      center: latLng(41.0001322, -123.04219482),
+      zoom: 5,
+      center: latLng(39.2152529, -98.5752488),
       text: "",
       date: "",
       hovering: false,
     };
   },
   methods: {
-    load(e) {
-      console.log(e);
-    },
     setText({ file, content }) {
       let gpx = new DOMParser().parseFromString(content, "text/xml");
       let converted = tj.gpx(gpx);
