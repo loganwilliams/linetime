@@ -156,4 +156,8 @@ export default {
 .vdatetime-time-picker__item--selected {
   color: #032165;
 }
+
+.vdatetime-popup {
+  z-index: 10000 !important;
+}
 </style>
