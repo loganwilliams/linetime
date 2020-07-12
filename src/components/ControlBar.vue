@@ -1,6 +1,8 @@
 <template>
   <div class="top">
-    <div class="title">GPX Time Tracer</div>
+    <div class="title">
+      <span class="strong">Linetime</span>: add timestamps to GPX traces
+    </div>
     <file-reader @load="$emit('setText', $event)"></file-reader>
     <div class="loaded" v-if="$store.state.filename">
       <div class="name" v-if="$store.state.filename">
@@ -89,13 +91,15 @@ export default {
 
 .name {
   font-weight: bold;
-  margin-left: 0.5em;
-  margin-right: 0.5em;
+  margin-right: 1em;
 }
 
 .title {
-  font-weight: bold;
   margin-right: 1em;
+}
+
+.strong {
+  font-weight: bold;
   text-decoration: underline;
 }
 </style>
