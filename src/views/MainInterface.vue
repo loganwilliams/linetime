@@ -140,8 +140,10 @@ export default {
   watch: {
     trace(to, from) {
       if (
-        to.geometry.coordinates.length !== from.geometry.coordinates.length ||
-        to.geometry.coordinates[0] !== from.geometry.coordinates[0]
+        to &&
+        (!from ||
+          to.geometry.coordinates.length !== from.geometry.coordinates.length ||
+          to.geometry.coordinates[0] !== from.geometry.coordinates[0])
       ) {
         let bbox = turf.bbox(to);
 
