@@ -3,10 +3,21 @@
     <div class="title">
       <span class="strong">Linetime</span>: add timestamps to GPX traces
     </div>
-    <file-reader @load="$emit('setText', $event)"></file-reader>
+    <file-reader @load="$store.dispatch('processGpx', $event)"></file-reader>
     <div class="loaded" v-if="$store.state.filename">
       <div class="name" v-if="$store.state.filename">
         {{ $store.state.filename }}
+      </div>
+      <div class="features" v-if="$store.state.featureCollection.length > 1">
+        <select id="features" name="features" @change="onchange">
+          <option
+            v-for="(feature, i) in $store.state.featureCollection"
+            :key="'feature_' + i"
+            :value="i"
+          >
+            {{ feature.properties.name || feature.properties.id || i }}
+          </option>
+        </select>
       </div>
       <PointEditor
         v-if="$store.getters.indexPoint"
@@ -58,6 +69,13 @@ export default {
 
       saveAs(blob, "output.gpx");
     },
+
+    onchange(e) {
+      this.$store.commit(
+        "setTrace",
+        this.$store.state.featureCollection[e.target.value]
+      );
+    },
   },
 };
 </script>
@@ -71,12 +89,23 @@ export default {
   color: white;
   height: 52px;
   border-bottom: 1px solid #544e68;
+
+  @media (max-width: 900px) {
+    flex-wrap: wrap;
+    height: auto;
+    height: 86px;
+  }
+
+  @media (max-width: 692px) {
+    height: 101px;
+  }
 }
 
 .export-container {
   flex-grow: 1;
   text-align: right;
   margin-right: 1em;
+  order: 3;
 }
 
 .loaded {
@@ -87,6 +116,20 @@ export default {
   padding-left: 1em;
   background-color: #203c56;
   height: 100%;
+
+  @media (max-width: 900px) {
+    margin-left: -1em;
+    height: 52px;
+  }
+
+  @media (max-width: 692px) {
+    height: auto;
+    flex-wrap: wrap;
+
+    .export-container {
+      order: 1;
+    }
+  }
 }
 
 .name {
@@ -101,5 +144,9 @@ export default {
 .strong {
   font-weight: bold;
   text-decoration: underline;
+}
+
+.features {
+  margin-right: 1em;
 }
 </style>

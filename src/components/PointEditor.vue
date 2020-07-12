@@ -95,6 +95,13 @@ export default {
   padding: 0.25em;
   border-radius: 2px;
   height: 100%;
+  order: 2;
+
+  @media (max-width: 692px) {
+    border-left: none;
+    padding-left: 0em;
+    margin-left: -0.5em;
+  }
 
   div {
     margin-left: 0.5em;

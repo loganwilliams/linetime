@@ -1,12 +1,14 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import * as turf from "@turf/turf";
+import tj from "togeojson";
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
     trace: false,
+    featureCollection: [],
     activeIndex: -1,
     hoverIndex: -1,
     filename: false,
@@ -15,6 +17,8 @@ export default new Vuex.Store({
   mutations: {
     setTrace(state, trace) {
       state.trace = trace;
+      state.activeIndex = -1;
+      state.hoverIndex = -1;
     },
     setIndex(state, index) {
       state.activeIndex = index;
@@ -28,6 +32,9 @@ export default new Vuex.Store({
     setMode(state, mode) {
       state.mode = mode;
     },
+    setFeatureCollection(state, collection) {
+      state.featureCollection = collection;
+    },
     setTimeAtActiveIndex(state, time) {
       let coordinates = state.trace.geometry.coordinates;
       coordinates[state.activeIndex][2] = time;
@@ -37,7 +44,21 @@ export default new Vuex.Store({
       };
     },
   },
-  actions: {},
+  actions: {
+    processGpx({ commit }, { file, content }) {
+      let gpx = new DOMParser().parseFromString(content, "text/xml");
+      let converted = tj.gpx(gpx);
+
+      let trace = converted;
+      if (converted.type === "FeatureCollection") {
+        trace = converted.features[0];
+      }
+
+      commit("setTrace", trace);
+      commit("setFilename", file);
+      commit("setFeatureCollection", converted.features);
+    },
+  },
   modules: {},
   getters: {
     indexPoint(state) {

@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <ControlBar @setText="setText($event)" />
+    <ControlBar />
     <div class="map">
       <div class="switcher">
         <button @click="$store.commit('setMode', 'default')">
@@ -16,21 +16,21 @@
         <l-tile-layer
           v-if="$store.state.mode === 'opentopo'"
           :url="'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png'"
-          :attribution="''"
+          :attribution="openTopoAttribution"
         />
         <l-tile-layer
           v-if="$store.state.mode === 'default'"
           :url="
             'https://api.mapbox.com/styles/v1/loganw/ckcbhkmuv12421ikdmvzfjctk/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoibG9nYW53IiwiYSI6IlQzWHJqc3cifQ.KY3j-syHXeYmI69JmLqGqQ'
           "
-          :attribution="''"
+          :attribution="mapboxAttribution"
         />
         <l-tile-layer
           v-if="$store.state.mode === 'satellite'"
           :url="
             'https://api.mapbox.com/v4/mapbox.satellite/{z}/{x}/{y}@2x.jpg90?access_token=pk.eyJ1IjoibG9nYW53IiwiYSI6IlQzWHJqc3cifQ.KY3j-syHXeYmI69JmLqGqQ'
           "
-          :attribution="''"
+          :attribution="mapboxAttribution"
         />
 
         <l-geo-json
@@ -82,7 +82,6 @@
 // @ is an alias to /src
 import { latLng } from "leaflet";
 import { LMap, LTileLayer, LGeoJson, LCircleMarker } from "vue2-leaflet";
-import tj from "togeojson";
 import * as turf from "@turf/turf";
 import ControlBar from "../components/ControlBar";
 
@@ -102,29 +101,13 @@ export default {
       text: "",
       date: "",
       hovering: false,
+      openTopoAttribution:
+        'map data: © <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | map style: © <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)',
+      mapboxAttribution:
+        '© <a href="https://www.mapbox.com/about/maps/">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> <strong><a href="https://www.mapbox.com/map-feedback/" target="_blank">Improve this map</a></strong>',
     };
   },
   methods: {
-    setText({ file, content }) {
-      let gpx = new DOMParser().parseFromString(content, "text/xml");
-      let converted = tj.gpx(gpx);
-
-      // TODO handle multiple featueres better
-
-      if (converted.type === "FeatureCollection") {
-        converted = converted.features[0];
-      }
-
-      this.$store.commit("setTrace", converted);
-      this.$store.commit("setFilename", file);
-
-      let bbox = turf.bbox(converted);
-
-      this.$refs.map.mapObject.fitBounds([
-        bbox.slice(0, 2).reverse(),
-        bbox.slice(2).reverse(),
-      ]);
-    },
     click(e) {
       var targetPoint = turf.point([e.latlng.lng, e.latlng.lat]);
 
@@ -149,6 +132,26 @@ export default {
       this.$store.commit("setHoverIndex", nearest.properties.featureIndex);
     },
   },
+  computed: {
+    trace() {
+      return this.$store.state.trace;
+    },
+  },
+  watch: {
+    trace(to, from) {
+      if (
+        to.geometry.coordinates.length !== from.geometry.coordinates.length ||
+        to.geometry.coordinates[0] !== from.geometry.coordinates[0]
+      ) {
+        let bbox = turf.bbox(to);
+
+        this.$refs.map.mapObject.fitBounds([
+          bbox.slice(0, 2).reverse(),
+          bbox.slice(2).reverse(),
+        ]);
+      }
+    },
+  },
 };
 </script>
 
@@ -160,6 +163,14 @@ export default {
 .map {
   height: calc(100% - 53px);
   position: relative;
+
+  @media (max-width: 900px) {
+    height: calc(100% - 87px);
+  }
+
+  @media (max-width: 692px) {
+    height: calc(100% - 102px);
+  }
 }
 
 .switcher {
