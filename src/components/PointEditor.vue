@@ -53,7 +53,7 @@ export default {
     },
 
     absoluteDate() {
-      return this.point[2] || false;
+      return this.point[this.$store.state.timeIndex] || false;
     },
 
     tempDateValue() {

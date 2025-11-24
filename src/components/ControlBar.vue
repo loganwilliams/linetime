@@ -51,16 +51,29 @@ export default {
   },
   methods: {
     exportGeojson() {
-      let coordinates = this.$store.state.trace.geometry.coordinates.map(
-        (c, i) => [c[0], c[1], this.$store.getters.getInterpolatedTime(i)]
-      );
+      let coordinates;
+
+      if (this.$store.state.timeIndex == 2) {
+        coordinates = this.$store.state.trace.geometry.coordinates.map(
+          (c, i) => [c[0], c[1], this.$store.getters.getInterpolatedTime(i)]
+        );
+      } else if (this.$store.state.timeIndex == 3) {
+        coordinates = this.$store.state.trace.geometry.coordinates.map(
+          (c, i) => [
+            c[0],
+            c[1],
+            c[2],
+            this.$store.getters.getInterpolatedTime(i),
+          ]
+        );
+      }
 
       let gj = {
         ...this.$store.state.trace,
         geometry: { ...this.$store.state.trace.geometry, coordinates },
         properties: {
           ...this.$store.state.trace.properties,
-          coordTimes: coordinates.map((c) => new Date(c[2]).toISOString()),
+          coordTimes: coordinates.map((c) => new Date(c[this.$store.state.timeIndex]).toISOString()),
         },
       };
 

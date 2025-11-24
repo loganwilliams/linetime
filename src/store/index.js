@@ -13,6 +13,7 @@ export default new Vuex.Store({
     hoverIndex: -1,
     filename: false,
     mode: "default",
+    timeIndex: 2,
   },
   mutations: {
     setTrace(state, trace) {
@@ -37,11 +38,14 @@ export default new Vuex.Store({
     },
     setTimeAtActiveIndex(state, time) {
       let coordinates = state.trace.geometry.coordinates;
-      coordinates[state.activeIndex][2] = time;
+      coordinates[state.activeIndex][state.timeIndex] = time;
       state.trace = {
         ...state.trace,
         geometry: { ...state.trace.geometry, coordinates },
       };
+    },
+    setTimeIndex(state, index) {
+      state.timeIndex = index;
     },
   },
   actions: {
@@ -52,6 +56,25 @@ export default new Vuex.Store({
       let trace = converted;
       if (converted.type === "FeatureCollection") {
         trace = converted.features[0];
+      }
+     
+      if (trace.geometry.coordinates[0].length < 3) {
+        commit("setTimeIndex", 2);
+      } else {
+        let maxIndex2 = 0;
+        for (let coord of trace.geometry.coordinates) {
+          if (!isNaN(coord[2])) {
+            if (coord[2] > maxIndex2) {
+              maxIndex2 = coord[2];
+            }
+          }
+        }
+
+        if (maxIndex2 > 1e12) {
+          commit("setTimeIndex", 2);
+        } else {
+          commit("setTimeIndex", 3);
+        }
       }
 
       commit("setTrace", trace);
@@ -64,7 +87,8 @@ export default new Vuex.Store({
     indexPoint(state) {
       if (state.activeIndex < 0) return null;
       let p = state.trace.geometry.coordinates[state.activeIndex];
-      return [p[1], p[0], ...p.slice(2)];
+      let indexPoint = [p[1], p[0], ...p.slice(2)];
+      return indexPoint;  
     },
 
     hoverPoint(state) {
@@ -77,7 +101,7 @@ export default new Vuex.Store({
       if (!state.trace) return [];
       let points = state.trace.geometry.coordinates
         .map((c, i) => ({ point: [c[1], c[0], ...c.slice(2)], index: i }))
-        .filter((c) => !isNaN(c.point[2]));
+        .filter((c) => !isNaN(c.point[state.timeIndex]));
       return points;
     },
 
@@ -87,12 +111,12 @@ export default new Vuex.Store({
       return (i) => {
         let index = i;
 
-        if (trace[index][2]) return trace[index][2];
+        if (trace[index][state.timeIndex]) return trace[index][state.timeIndex];
 
         let above = null;
         while (index < trace.length - 1 && !above) {
           index += 1;
-          if (trace[index][2]) {
+          if (trace[index][state.timeIndex]) {
             above = index;
           }
         }
@@ -102,16 +126,16 @@ export default new Vuex.Store({
         let below = null;
         while (index > 0 && !below) {
           index -= 1;
-          if (trace[index][2]) {
+          if (trace[index][state.timeIndex]) {
             below = index;
           }
         }
 
         index = i;
 
-        if (!above && !below) return null;
-        if (!above || !below) {
-          return above ? trace[above][2] : trace[below][2];
+        if ((!above && above !== 0) && (!below && below !== 0)) return null;
+        if ((!above && above !== 0) || (!below && below !== 0)) {
+          return (above || above === 0) ? trace[above][state.timeIndex] : trace[below][state.timeIndex];
         }
 
         let line = turf.lineString(trace.slice(below, above + 1));
@@ -119,7 +143,7 @@ export default new Vuex.Store({
 
         let alpha = turf.length(subline) / turf.length(line);
 
-        return trace[above][2] * alpha + (1 - alpha) * trace[below][2];
+        return trace[above][state.timeIndex] * alpha + (1 - alpha) * trace[below][state.timeIndex];
       };
     },
   },

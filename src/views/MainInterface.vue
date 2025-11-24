@@ -6,7 +6,7 @@
         <button @click="$store.commit('setMode', 'default')">
           Default map
         </button>
-        <button @click="$store.commit('setMode', 'opentopo')">OpenTopo</button>
+        <button @click="$store.commit('setMode', 'opentopo')">Terrain</button>
         <button @click="$store.commit('setMode', 'satellite')">
           Satellite
         </button>
@@ -15,20 +15,20 @@
       <l-map :zoom="zoom" :center="center" ref="map" @mousemove="mousemove">
         <l-tile-layer
           v-if="$store.state.mode === 'opentopo'"
-          :url="'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png'"
+          :url="'https://mt1.google.com/vt/lyrs=t&x={x}&y={y}&z={z}'"
           :attribution="openTopoAttribution"
         />
         <l-tile-layer
           v-if="$store.state.mode === 'default'"
           :url="
-            'https://api.mapbox.com/styles/v1/loganw/ckcbhkmuv12421ikdmvzfjctk/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoibG9nYW53IiwiYSI6IlQzWHJqc3cifQ.KY3j-syHXeYmI69JmLqGqQ'
+            'https://mt1.google.com/vt/lyrs=r&x={x}&y={y}&z={z}'
           "
           :attribution="mapboxAttribution"
         />
         <l-tile-layer
           v-if="$store.state.mode === 'satellite'"
           :url="
-            'https://api.mapbox.com/v4/mapbox.satellite/{z}/{x}/{y}@2x.jpg90?access_token=pk.eyJ1IjoibG9nYW53IiwiYSI6IlQzWHJqc3cifQ.KY3j-syHXeYmI69JmLqGqQ'
+            'https://www.google.cn/maps/vt?lyrs=s@189&gl=cn&x={x}&y={y}&z={z}'
           "
           :attribution="mapboxAttribution"
         />
@@ -56,7 +56,7 @@
         ></l-geo-json>
         <l-circle-marker
           v-if="$store.getters.indexPoint"
-          :lat-lng="$store.getters.indexPoint"
+          :lat-lng="$store.getters.indexPoint.slice(0,2)"
           :radius="6"
           color="#ff73c1"
           fillColor="black"
@@ -65,7 +65,7 @@
         <l-circle-marker
           v-for="p in $store.getters.pointsWithTimestamp"
           :key="p.index"
-          :lat-lng="p.point"
+          :lat-lng="p.point.slice(0,2)"
           :radius="4"
           color="#cc1c58"
           fillColor="#ffecd6"
